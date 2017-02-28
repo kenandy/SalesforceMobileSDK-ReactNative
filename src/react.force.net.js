@@ -141,6 +141,11 @@ var create = function(objtype, fields, callback, error) {
                        , callback, error, "POST", fields);
 };
 
+var createMultiple = function(objtype, records, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/composite/tree/' + objtype + '/'
+                       , callback, error, "POST", {"records" : records});
+};
+
 /*
  * Retrieves field values for a record of the given type.
  * @param objtype object type; e.g. "Account"
@@ -282,5 +287,6 @@ module.exports = {
     search: search,
     compactLayout: compactLayout,
     defaultLayout: defaultLayout,
-    relevantItems:relevantItems
+    relevantItems:relevantItems,
+    createMultiple: createMultiple
 };
