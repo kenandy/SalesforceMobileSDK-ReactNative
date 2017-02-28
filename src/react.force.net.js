@@ -45,7 +45,7 @@ var getApiVersion = function() {
     return apiVersion;
 }
 
-/** 
+/**
  * Send arbitray force.com request
  */
 var sendRequest = function(endPoint, path, successCB, errorCB, method, payload, headerParams, fileParams) {
@@ -54,7 +54,7 @@ var sendRequest = function(endPoint, path, successCB, errorCB, method, payload, 
     headerParams = headerParams || {};
     // File params expected to be of the form:
     // {<fileParamNameInPost>: {fileMimeType:<someMimeType>, fileUrl:<fileUrl>, fileName:<fileNameForPost>}}
-    fileParams = fileParams || {}; 
+    fileParams = fileParams || {};
     var args = {endPoint: endPoint, path:path, method:method, queryParams:payload, headerParams:headerParams, fileParams: fileParams};
     forceCommon.exec("SFNetReactBridge", "SalesforceNetReactBridge", SFNetReactBridge, SalesforceNetReactBridge, successCB, errorCB, "sendRequest", args);
 };
@@ -244,6 +244,21 @@ var search = function(sosl, callback, error) {
                        , callback, error, 'GET', {q: sosl});
 };
 
+var compactLayout = function(objtype, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/describe/compactLayouts/primary'
+                       , callback, error);
+};
+
+var defaultLayout = function(objtype, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/describe/layouts/012000000000000AAA'
+                       , callback, error);
+};
+
+var relevantItems = function(objtypes, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/relevantItems?sobjects='+objtypes.join(',')
+                       , callback, error);
+};
+
 /**
  * Part of the module that is public
  */
@@ -264,5 +279,8 @@ module.exports = {
     del: del,
     query: query,
     queryMore: queryMore,
-    search: search
+    search: search,
+    compactLayout: compactLayout,
+    defaultLayout: defaultLayout,
+    relevantItems:relevantItems
 };
