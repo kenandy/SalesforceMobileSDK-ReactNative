@@ -1,6 +1,6 @@
 {
 	"name": "react-native-force",
-	"version": "5.0.1",
+	"version": "5.3.0",
 	"description": "Salesforce Mobile SDK JavaScript libraries for React Native",
 	"keywords": [ "mobilesdk", "react-native", "salesforce", "mobile", "sdk" ],
 	"homepage": "https://github.com/forcedotcom/SalesforceMobileSDK-ReactNative",
@@ -23,7 +23,7 @@
     "dependencies": {
     },
     "peerDependencies": {
-        "react-native": ">=0.35.0"
+        "react-native": ">=0.43.1"
     }
 }
 
