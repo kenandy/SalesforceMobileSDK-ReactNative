@@ -24,37 +24,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { NativeModules } from 'react-native';
-const { SalesforceNetReactBridge, SFNetReactBridge } = NativeModules;
-import {exec as forceExec} from './react.force.common.js';
+'use strict';
 
-var  apiVersion = 'v39.0';
+var { SalesforceNetReactBridge, SFNetReactBridge } = require('react-native').NativeModules;
+var forceCommon = require('./react.force.common.js');
+
+var apiVersion = 'v36.0';
 
 /**
  * Set apiVersion to be used
  */
-export const setApiVersion = version => {
+var setApiVersion = function(version) {
     apiVersion = version;
-};
+}
 
 /**
  * Return apiVersion used
  */
-export const getApiVersion = () => apiVersion;
-
+var getApiVersion = function() {
+    return apiVersion;
+}
 
 /**
  * Send arbitray force.com request
  */
-export const sendRequest = (endPoint, path, successCB, errorCB, method, payload, headerParams, fileParams) => {
+var sendRequest = function(endPoint, path, successCB, errorCB, method, payload, headerParams, fileParams) {
     method = method || "GET";
     payload = payload || {};
     headerParams = headerParams || {};
     // File params expected to be of the form:
     // {<fileParamNameInPost>: {fileMimeType:<someMimeType>, fileUrl:<fileUrl>, fileName:<fileNameForPost>}}
     fileParams = fileParams || {};
-    const args = {endPoint, path, method, queryParams:payload, headerParams, fileParams};
-    forceExec("SFNetReactBridge", "SalesforceNetReactBridge", SFNetReactBridge, SalesforceNetReactBridge, successCB, errorCB, "sendRequest", args);
+    var args = {endPoint: endPoint, path:path, method:method, queryParams:payload, headerParams:headerParams, fileParams: fileParams};
+    forceCommon.exec("SFNetReactBridge", "SalesforceNetReactBridge", SFNetReactBridge, SalesforceNetReactBridge, successCB, errorCB, "sendRequest", args);
 };
 
 
@@ -65,7 +67,9 @@ export const sendRequest = (endPoint, path, successCB, errorCB, method, payload,
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const versions = (callback, error) => sendRequest('/services/data', '/', callback, error);
+var versions = function(callback, error) {
+    return sendRequest('/services/data', '/', callback, error);
+};
 
 /*
  * Lists available resources for the client's API version, including
@@ -73,7 +77,9 @@ export const versions = (callback, error) => sendRequest('/services/data', '/', 
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const resources = (callback, error) => sendRequest('/services/data', `/${apiVersion}/`, callback, error);
+var resources = function(callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/', callback, error);
+};
 
 /*
  * Lists the available objects and their metadata for your organization's
@@ -81,7 +87,9 @@ export const resources = (callback, error) => sendRequest('/services/data', `/${
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const describeGlobal = (callback, error) => sendRequest('/services/data', `/${apiVersion}/sobjects/`, callback, error);
+var describeGlobal = function(callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/', callback, error);
+};
 
 /*
  * Describes the individual metadata for the specified object.
@@ -89,7 +97,10 @@ export const describeGlobal = (callback, error) => sendRequest('/services/data',
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const metadata = (objtype, callback, error) => sendRequest('/services/data', `/${apiVersion}/sobjects/${objtype}/`, callback, error);
+var metadata = function(objtype, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/'
+                       , callback, error);
+};
 
 /*
  * Completely describes the individual metadata at all levels for the
@@ -98,7 +109,10 @@ export const metadata = (objtype, callback, error) => sendRequest('/services/dat
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const describe = (objtype, callback, error) => sendRequest('/services/data', `/${apiVersion}/sobjects/${objtype}/describe/`, callback, error);
+var describe = function(objtype, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype
+                       + '/describe/', callback, error);
+};
 
 /*
  * Fetches the layout configuration for a particular sobject type and record type id.
@@ -107,9 +121,10 @@ export const describe = (objtype, callback, error) => sendRequest('/services/dat
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const describeLayout = (objtype, recordTypeId, callback, error) => {
+var describeLayout = function(objtype, recordTypeId, callback, error) {
     recordTypeId = recordTypeId ? recordTypeId : '';
-    return sendRequest('/services/data', `/${apiVersion}/sobjects/${objtype}/describe/layouts/${recordTypeId}`, callback, error);
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype
+                       + '/describe/layouts/' + recordTypeId, callback, error);
 };
 
 /*
@@ -121,9 +136,15 @@ export const describeLayout = (objtype, recordTypeId, callback, error) => {
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const create = (objtype, fields, callback, error) => sendRequest('/services/data', `/${apiVersion}/sobjects/${objtype}/`, callback, error, "POST", fields);
+var create = function(objtype, fields, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/'
+                       , callback, error, "POST", fields);
+};
 
-export const createMultiple = (objtype, records, callback, error) => sendRequest('/services/data', `/${apiVersion}/composite/tree/${objtype}/`, callback, error, "POST", {"records" : records});
+var createMultiple = function(objtype, records, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/composite/tree/' + objtype + '/'
+                       , callback, error, "POST", {"records" : records});
+};
 
 /*
  * Retrieves field values for a record of the given type.
@@ -134,14 +155,15 @@ export const createMultiple = (objtype, records, callback, error) => sendRequest
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const retrieve = function(objtype, id, fieldlist, callback, error) {
+var retrieve = function(objtype, id, fieldlist, callback, error) {
     if (arguments.length == 4) {
         error = callback;
         callback = fieldlist;
         fieldlist = null;
     }
-    const fields = fieldlist ? {fields:fieldlist} : null;
-    return sendRequest('/services/data', `/${apiVersion}/sobjects/${objtype}/${id}`, callback, error, 'GET', fields);
+    var fields = fieldlist ? {fields:fieldlist} : null;
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/' + id
+                       , callback, error, 'GET', fields);
 };
 
 /*
@@ -156,7 +178,10 @@ export const retrieve = function(objtype, id, fieldlist, callback, error) {
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const upsert = (objtype, externalIdField, externalId, fields, callback, error) => sendRequest('/services/data', `/${apiVersion}/sobjects/${objtype}/${externalIdField}/${externalId}`, callback, error, "PATCH", fields);
+var upsert = function(objtype, externalIdField, externalId, fields, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/' + externalIdField + '/' + externalId
+                       , callback, error, "PATCH", fields);
+};
 
 /*
  * Updates field values on a record of the given type.
@@ -168,7 +193,10 @@ export const upsert = (objtype, externalIdField, externalId, fields, callback, e
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const update = (objtype, id, fields, callback, error) => sendRequest('/services/data', `/${apiVersion}/sobjects/${objtype}/${id}`, callback, error, "PATCH", fields);
+var update = function(objtype, id, fields, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/' + id
+                       , callback, error, "PATCH", fields);
+};
 
 /*
  * Deletes a record of the given type. Unfortunately, 'delete' is a
@@ -178,7 +206,10 @@ export const update = (objtype, id, fields, callback, error) => sendRequest('/se
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const del = (objtype, id, callback, error) => sendRequest('/services/data', `/${apiVersion}/sobjects/${objtype}/${id}`, callback, error, "DELETE");
+var del = function(objtype, id, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/' + id
+                       , callback, error, "DELETE");
+};
 
 /*
  * Executes the specified SOQL query.
@@ -187,7 +218,10 @@ export const del = (objtype, id, callback, error) => sendRequest('/services/data
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const query = (soql, callback, error) => sendRequest('/services/data', `/${apiVersion}/query`, callback, error, 'GET', {q: soql});
+var query = function(soql, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/query'
+                       , callback, error, 'GET', {q: soql});
+};
 
 /*
  * Queries the next set of records based on pagination.
@@ -198,8 +232,8 @@ export const query = (soql, callback, error) => sendRequest('/services/data', `/
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const queryMore = (url, callback, error) => {
-    const pathFromUrl = url.match(/https:\/\/[^/]*(.*)/)[1];
+var queryMore = function( url, callback, error ){
+    var pathFromUrl = url.match(/https:\/\/[^/]*(.*)/)[1];
     return sendRequest('',  pathFromUrl, callback, error );
 };
 
@@ -210,4 +244,49 @@ export const queryMore = (url, callback, error) => {
  * @param callback function to which response will be passed
  * @param [error=null] function called in case of error
  */
-export const search = (sosl, callback, error) => sendRequest('/services/data', `/${apiVersion}/search`, callback, error, 'GET', {q: sosl});
+var search = function(sosl, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/search'
+                       , callback, error, 'GET', {q: sosl});
+};
+
+var compactLayout = function(objtype, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/describe/compactLayouts/primary'
+                       , callback, error);
+};
+
+var defaultLayout = function(objtype, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/' + objtype + '/describe/layouts/012000000000000AAA'
+                       , callback, error);
+};
+
+var relevantItems = function(objtypes, callback, error) {
+    return sendRequest('/services/data', '/' + apiVersion + '/sobjects/relevantItems?sobjects='+objtypes.join(',')
+                       , callback, error);
+};
+
+/**
+ * Part of the module that is public
+ */
+module.exports = {
+    setApiVersion: setApiVersion,
+    getApiVersion: getApiVersion,
+    sendRequest: sendRequest,
+    versions: versions,
+    resources: resources,
+    describeGlobal: describeGlobal,
+    metadata: metadata,
+    describe: describe,
+    describeLayout: describeLayout,
+    create: create,
+    retrieve: retrieve,
+    upsert: upsert,
+    update: update,
+    del: del,
+    query: query,
+    queryMore: queryMore,
+    search: search,
+    compactLayout: compactLayout,
+    defaultLayout: defaultLayout,
+    relevantItems:relevantItems,
+    createMultiple: createMultiple
+};

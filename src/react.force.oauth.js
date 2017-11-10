@@ -24,19 +24,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { NativeModules } from 'react-native';
-const { SalesforceOauthReactBridge, SFOauthReactBridge } = NativeModules;
-import {exec as forceExec} from './react.force.common.js';
+'use strict';
 
-const exec = (successCB, errorCB, methodName, args) => {
-    forceExec("SFOauthReactBridge", "SalesforceOauthReactBridge", SFOauthReactBridge, SalesforceOauthReactBridge, successCB, errorCB, methodName, args);
+var { SalesforceOauthReactBridge, SFOauthReactBridge } = require('react-native').NativeModules;
+var forceCommon = require('./react.force.common.js');
+
+var exec = function(successCB, errorCB, methodName, args) {
+    forceCommon.exec("SFOauthReactBridge", "SalesforceOauthReactBridge", SFOauthReactBridge, SalesforceOauthReactBridge, successCB, errorCB, methodName, args);
 };
 
 /**
  * Whether or not logout has already been initiated.  Can only be initiated once
  * per page load.
  */
-let logoutInitiated = false;
+var logoutInitiated = false;
 
 /**
  * Initiates the authentication process, with the given app configuration.
@@ -54,7 +55,7 @@ let logoutInitiated = false;
  *   community id 
  *   community url
  */
-export const authenticate = (success, fail) => {
+var authenticate = function (success, fail) {
     exec(success, fail, "authenticate", {});
 };
 
@@ -74,7 +75,7 @@ export const authenticate = (success, fail) => {
  *   community id 
  *   community url
  */
-export const getAuthCredentials = (success, fail) => {
+var getAuthCredentials = function (success, fail) {
     exec(success, fail, "getAuthCredentials", {});
 };
 
@@ -88,10 +89,18 @@ export const getAuthCredentials = (success, fail) => {
  * the given page (effectively resetting the logout flag), and calling this method again
  * while it's currently processing will result in app state issues.
  */
-export const logout = () => {
+var logout = function () {
     if (!logoutInitiated) {
         logoutInitiated = true;
         exec(null, null, "logoutCurrentUser", {});
     }
 };
 
+/**
+ * Part of the module that is public
+ */
+module.exports = {
+    authenticate: authenticate,
+    getAuthCredentials: getAuthCredentials,
+    logout: logout
+};

@@ -24,111 +24,101 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { NativeModules } from 'react-native';
-const { SmartStoreReactBridge, SFSmartStoreReactBridge } = NativeModules;
-import {exec as forceExec} from './react.force.common.js';
+'use strict';
 
+var { SmartStoreReactBridge, SFSmartStoreReactBridge } = require('react-native').NativeModules;
+var forceCommon = require('./react.force.common.js');
 
-const exec = (successCB, errorCB, methodName, args) => {
-    forceExec("SFSmartStoreReactBridge", "SmartStoreReactBridge", SFSmartStoreReactBridge, SmartStoreReactBridge, successCB, errorCB, methodName, args);
+var exec = function(successCB, errorCB, methodName, args) {
+    forceCommon.exec("SFSmartStoreReactBridge", "SmartStoreReactBridge", SFSmartStoreReactBridge, SmartStoreReactBridge, successCB, errorCB, methodName, args);
 };
 
 /**
- * StoreConfig class
+ * StoreConfig constructor
  */
-export class StoreConfig {
-    constructor(storeName, isGlobalStore) {
-        this.storeName = storeName;
-        this.isGlobalStore = isGlobalStore;
-    }
-}
+var StoreConfig = function (storeName, isGlobalStore) {
+    this.storeName = storeName;
+    this.isGlobalStore = isGlobalStore;
+};
 
 /**
- * SoupSpec class
+ * SoupSpec consturctor
  */
-export class SoupSpec {
-    constructor(soupName, features) {
-        this.name = soupName;
-        this.features = features;
-    }
-}
+var SoupSpec = function (soupName, features) {
+    this.name = soupName;
+    this.features = features;
+};
 
 /**
- * SoupIndexSpec class
+ * SoupIndexSpec consturctor
  */
-export class SoupIndexSpec {
-    constructor(path, type) {
-        this.path = path;
-        this.type = type;
-    }
-}
+var SoupIndexSpec = function (path, type) {
+    this.path = path;
+    this.type = type;
+};
 
 /**
- * QuerySpec class
+ * QuerySpec constructor
  */
-export class QuerySpec {
-    constructor(path) {
-        // the kind of query, one of: "exact","range", "like" or "smart":
-        // "exact" uses matchKey, "range" uses beginKey and endKey, "like" uses likeKey, "smart" uses smartSql
-        this.queryType = "exact";
+var QuerySpec = function (path) {
+    // the kind of query, one of: "exact","range", "like" or "smart":
+    // "exact" uses matchKey, "range" uses beginKey and endKey, "like" uses likeKey, "smart" uses smartSql
+    this.queryType = "exact";
 
-        //path for the original IndexSpec you wish to use for search: may be a compound path eg Account.Owner.Name
-        this.indexPath = path;
+    //path for the original IndexSpec you wish to use for search: may be a compound path eg Account.Owner.Name
+    this.indexPath = path;
 
-        //for queryType "exact" and "match"
-        this.matchKey = null;
+    //for queryType "exact" and "match"
+    this.matchKey = null;
 
-        //for queryType "like"
-        this.likeKey = null;
+    //for queryType "like"
+    this.likeKey = null;
 
-        //for queryType "range"
-        //the value at which query results may begin
-        this.beginKey = null;
-        //the value at which query results may end
-        this.endKey = null;
+    //for queryType "range"
+    //the value at which query results may begin
+    this.beginKey = null;
+    //the value at which query results may end
+    this.endKey = null;
 
-        // for queryType "smart"
-        this.smartSql = null;
+    // for queryType "smart"
+    this.smartSql = null;
 
-        //path to sort by : optional
-        this.orderPath = null
+    //path to sort by : optional
+    this.orderPath = null
 
-        //"ascending" or "descending" : optional
-        this.order = "ascending";
+    //"ascending" or "descending" : optional
+    this.order = "ascending";
 
-        //the number of entries to copy from native to javascript per each cursor page
-        this.pageSize = 10;
+    //the number of entries to copy from native to javascript per each cursor page
+    this.pageSize = 10;
 
-        //selectPaths - null means return soup elements
-        this.selectPaths = null;
-    }
-}
+    //selectPaths - null means return soup elements
+    this.selectPaths = null;
+};
 
 /**
- * StoreCursor class
+ * StoreCursor constructor
  */
-export class StoreCursor {
-    constructor() {
-        //a unique identifier for this cursor, used by plugin
-        this.cursorId = null;
-        //the maximum number of entries returned per page
-        this.pageSize = 0;
-        // the total number of results
-        this.totalEntries = 0;
-        //the total number of pages of results available
-        this.totalPages = 0;
-        //the current page index among all the pages available
-        this.currentPageIndex = 0;
-        //the list of current page entries, ordered as requested in the querySpec
-        this.currentPageOrderedEntries = null;
-    }
-}
+var StoreCursor = function () {
+    //a unique identifier for this cursor, used by plugin
+    this.cursorId = null;
+    //the maximum number of entries returned per page
+    this.pageSize = 0;
+    // the total number of results
+    this.totalEntries = 0;
+    //the total number of pages of results available
+    this.totalPages = 0;
+    //the current page index among all the pages available
+    this.currentPageIndex = 0;
+    //the list of current page entries, ordered as requested in the querySpec
+    this.currentPageOrderedEntries = null;
+};
 
 // ====== querySpec factory methods
 // Returns a query spec that will page through all soup entries in order by the given path value
 // Internally it simply does a range query with null begin and end keys
-export const buildAllQuerySpec = (path, order, pageSize, selectPaths) => {
-    const inst = new QuerySpec(path);
+var buildAllQuerySpec = function (path, order, pageSize, selectPaths) {
+    var inst = new QuerySpec(path);
     inst.queryType = "range";
     inst.orderPath = path;
     if (order) { inst.order = order; } // override default only if a value was specified
@@ -138,8 +128,8 @@ export const buildAllQuerySpec = (path, order, pageSize, selectPaths) => {
 };
 
 // Returns a query spec that will page all entries exactly matching the matchKey value for path
-export const buildExactQuerySpec = (path, matchKey, pageSize, order, orderPath, selectPaths) => {
-    const inst = new QuerySpec(path);
+var buildExactQuerySpec = function (path, matchKey, pageSize, order, orderPath, selectPaths) {
+    var inst = new QuerySpec(path);
     inst.matchKey = matchKey;
     if (pageSize) { inst.pageSize = pageSize; } // override default only if a value was specified
     if (order) { inst.order = order; } // override default only if a value was specified
@@ -149,8 +139,8 @@ export const buildExactQuerySpec = (path, matchKey, pageSize, order, orderPath, 
 };
 
 // Returns a query spec that will page all entries in the range beginKey ...endKey for path
-export const buildRangeQuerySpec = (path, beginKey, endKey, order, pageSize, orderPath, selectPaths) => {
-    const inst = new QuerySpec(path);
+var buildRangeQuerySpec = function (path, beginKey, endKey, order, pageSize, orderPath, selectPaths) {
+    var inst = new QuerySpec(path);
     inst.queryType = "range";
     inst.beginKey = beginKey;
     inst.endKey = endKey;
@@ -162,8 +152,8 @@ export const buildRangeQuerySpec = (path, beginKey, endKey, order, pageSize, ord
 };
 
 // Returns a query spec that will page all entries matching the given likeKey value for path
-export const buildLikeQuerySpec = (path, likeKey, order, pageSize, orderPath, selectPaths) => {
-    const inst = new QuerySpec(path);
+var buildLikeQuerySpec = function (path, likeKey, order, pageSize, orderPath, selectPaths) {
+    var inst = new QuerySpec(path);
     inst.queryType = "like";
     inst.likeKey = likeKey;
     if (order) { inst.order = order; } // override default only if a value was specified
@@ -175,8 +165,8 @@ export const buildLikeQuerySpec = (path, likeKey, order, pageSize, orderPath, se
 
 // Returns a query spec that will page all entries matching the given full-text search matchKey value for path
 // Pass null for path to match matchKey across all full-text indexed fields
-export const buildMatchQuerySpec = (path, matchKey, order, pageSize, orderPath, selectPaths) => {
-    const inst = new QuerySpec(path);
+var buildMatchQuerySpec = function (path, matchKey, order, pageSize, orderPath, selectPaths) {
+    var inst = new QuerySpec(path);
     inst.queryType = "match";
     inst.matchKey = matchKey;
     inst.orderPath = orderPath;
@@ -188,8 +178,8 @@ export const buildMatchQuerySpec = (path, matchKey, order, pageSize, orderPath, 
 };
 
 // Returns a query spec that will page all results returned by smartSql
-export const buildSmartQuerySpec = (smartSql, pageSize) => {
-    const inst = new QuerySpec();
+var buildSmartQuerySpec = function (smartSql, pageSize) {
+    var inst = new QuerySpec();
     inst.queryType = "smart";
     inst.smartSql = smartSql;
     if (pageSize) { inst.pageSize = pageSize; } // override default only if a value was specified
@@ -198,14 +188,14 @@ export const buildSmartQuerySpec = (smartSql, pageSize) => {
 // If param is a storeconfig return the same storeconfig 
 // If param is a boolean, returns a storeconfig object  {'isGlobalStore': boolean}
 // Otherwise, returns a default storeconfig object
-const checkFirstArg = arg => {
+var checkFirstArg = function(arg) {
     // Turning arguments into array
     // If first argument is a store config
     if (typeof(arg) === "object" && arg.hasOwnProperty("isGlobalStore")) {
          return arg;
     }
 
-    let isGlobalStore =  false;
+    var isGlobalStore =  false;
     if (typeof(arg) === "boolean") {
        isGlobalStore = arg;
     }
@@ -213,106 +203,105 @@ const checkFirstArg = arg => {
 };
 
 // ====== Soup manipulation ======
-export const getDatabaseSize = (storeConfig, successCB, errorCB) => {
+var getDatabaseSize = function (storeConfig, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "getDatabaseSize", {"isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const registerSoup = (storeConfig, soupName, indexSpecs, successCB, errorCB) => {
+var registerSoup = function (storeConfig, soupName, indexSpecs, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "registerSoup", {"soupName": soupName, "indexes": indexSpecs, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const registerSoupWithSpec = (storeConfig, soupSpec, indexSpecs, successCB, errorCB) => {
+var registerSoupWithSpec = function (storeConfig, soupSpec, indexSpecs, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "registerSoup", {"soupSpec": soupSpec, "indexes": indexSpecs, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const removeSoup = (storeConfig, soupName, successCB, errorCB) => {
+var removeSoup = function (storeConfig, soupName, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "removeSoup", {"soupName": soupName, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const getSoupIndexSpecs = (storeConfig, soupName, successCB, errorCB) => {
+var getSoupIndexSpecs = function(storeConfig, soupName, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "getSoupIndexSpecs", {"soupName": soupName, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const getSoupSpec = (storeConfig, soupName, successCB, errorCB) => {
+var getSoupSpec = function(storeConfig, soupName, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "getSoupSpec", {"soupName": soupName, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const alterSoup = (storeConfig, soupName, indexSpecs, reIndexData, successCB, errorCB) => {
+var alterSoup = function (storeConfig, soupName, indexSpecs, reIndexData, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "alterSoup", {"soupName": soupName, "indexes": indexSpecs, "reIndexData": reIndexData, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const alterSoupWithSpec = (storeConfig, soupName, soupSpec, indexSpecs, reIndexData, successCB, errorCB) => {
+var alterSoupWithSpec = function (storeConfig, soupName, soupSpec, indexSpecs, reIndexData, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "alterSoup", {"soupName": soupName, "soupSpec": soupSpec, "indexes": indexSpecs, "reIndexData": reIndexData, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const reIndexSoup = (storeConfig, soupName, paths, successCB, errorCB) => {
+var reIndexSoup = function (storeConfig, soupName, paths, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "reIndexSoup", {"soupName": soupName, "paths": paths, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const clearSoup = (storeConfig, soupName, successCB, errorCB) => {
+var clearSoup = function (storeConfig, soupName, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "clearSoup", {"soupName": soupName, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const soupExists = (storeConfig, soupName, successCB, errorCB) => {
+var soupExists = function (storeConfig, soupName, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "soupExists", {"soupName": soupName, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const querySoup = (storeConfig, soupName, querySpec, successCB, errorCB) => {
+var querySoup = function (storeConfig, soupName, querySpec, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     if (querySpec.queryType == "smart") throw new Error("Smart queries can only be run using runSmartQuery");
     if (querySpec.order != null && querySpec.orderPath == null) querySpec.orderPath = querySpec.indexPath; // for backward compatibility with pre-3.3 code
     exec(successCB, errorCB, "querySoup", {"soupName": soupName, "querySpec": querySpec, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const runSmartQuery = (storeConfig, querySpec, successCB, errorCB) => {
+var runSmartQuery = function (storeConfig, querySpec, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     if (querySpec.queryType != "smart") throw new Error("runSmartQuery can only run smart queries");
     exec(successCB, errorCB, "runSmartQuery", {"querySpec": querySpec, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const retrieveSoupEntries = (storeConfig, soupName, entryIds, successCB, errorCB) => {
+var retrieveSoupEntries = function (storeConfig, soupName, entryIds, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "retrieveSoupEntries", {"soupName": soupName, "entryIds": entryIds, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const upsertSoupEntries = (storeConfig, soupName, entries, successCB, errorCB) => {
+var upsertSoupEntries = function (storeConfig, soupName, entries, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     upsertSoupEntriesWithExternalId(storeConfig, soupName, entries, "_soupEntryId", successCB, errorCB);
 };
 
-export var upsertSoupEntriesWithExternalId = (storeConfig, soupName, entries, externalIdPath, successCB, errorCB) => {
+var upsertSoupEntriesWithExternalId = function (storeConfig, soupName, entries, externalIdPath, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "upsertSoupEntries", {"soupName": soupName, "entries": entries, "externalIdPath": externalIdPath, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const removeFromSoup = (storeConfig, soupName, entryIdsOrQuerySpec, successCB, errorCB) => {
+var removeFromSoup = function (storeConfig, soupName, entryIdsOrQuerySpec, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
-    const execArgs = {"soupName": soupName, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName};
+    var execArgs = {"soupName": soupName, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName};
     execArgs[entryIdsOrQuerySpec instanceof Array ? "entryIds":"querySpec"] = entryIdsOrQuerySpec;
-    execArgs[entryIdsOrQuerySpec instanceof Array ? "querySpec":"entryIds"] = null;
     exec(successCB, errorCB, "removeFromSoup", execArgs);
 };
 
 //====== Cursor manipulation ======
-export const moveCursorToPageIndex = (storeConfig, cursor, newPageIndex, successCB, errorCB) => {
+var moveCursorToPageIndex = function (storeConfig, cursor, newPageIndex, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "moveCursorToPageIndex", {"cursorId": cursor.cursorId, "index": newPageIndex, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
-export const moveCursorToNextPage = (storeConfig, cursor, successCB, errorCB) => {
+var moveCursorToNextPage = function (storeConfig, cursor, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
-    const newPageIndex = cursor.currentPageIndex + 1;
+    var newPageIndex = cursor.currentPageIndex + 1;
     if (newPageIndex >= cursor.totalPages) {
         errorCB(cursor, new Error("moveCursorToNextPage called while on last page"));
     } else {
@@ -320,9 +309,9 @@ export const moveCursorToNextPage = (storeConfig, cursor, successCB, errorCB) =>
     }
 };
 
-export const moveCursorToPreviousPage = (storeConfig, cursor, successCB, errorCB) => {
+var moveCursorToPreviousPage = function (storeConfig, cursor, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
-    const newPageIndex = cursor.currentPageIndex - 1;
+    var newPageIndex = cursor.currentPageIndex - 1;
     if (newPageIndex < 0) {
         errorCB(cursor, new Error("moveCursorToPreviousPage called while on first page"));
     } else {
@@ -330,34 +319,79 @@ export const moveCursorToPreviousPage = (storeConfig, cursor, successCB, errorCB
     }
 };
 
-export const closeCursor = (storeConfig, cursor, successCB, errorCB) => {
+var closeCursor = function (storeConfig, cursor, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "closeCursor", {"cursorId": cursor.cursorId, "isGlobalStore": storeConfig.isGlobalStore,"storeName":storeConfig.storeName});
 };
 
 //====== Store Operations ======
-export const getAllStores = (storeConfig, successCB, errorCB) => {
+var getAllStores = function (storeConfig,successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "getAllStores", {});
 };
 
-export const getAllGlobalStores = (successCB, errorCB) => {
-    const storeConfig = checkFirstArg(storeConfig);
+var getAllGlobalStores = function (successCB, errorCB) {
+    var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "getAllGlobalStores", {});
 
 };
 
-export const removeStore = (storeConfig, successCB, errorCB) => {
+var removeStore = function (storeConfig,successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "removeStore", {"isGlobalStore": storeConfig.isGlobalStore, "storeName": storeConfig.storeName});
 };
 
-export const removeAllGlobalStores = (successCB, errorCB) => {
-  const storeConfig = checkFirstArg(storeConfig);
+var removeAllGlobalStores = function (successCB, errorCB) {
+  var storeConfig = checkFirstArg(storeConfig);
   exec(successCB, errorCB, "removeAllGlobalStores", {});
 };
 
-export const removeAllStores = (successCB, errorCB) => {
-  const storeConfig = checkFirstArg(storeConfig);
+var removeAllStores = function (successCB, errorCB) {
+  var storeConfig = checkFirstArg(storeConfig);
   exec(successCB, errorCB, "removeAllStores", {});
+};
+
+/**
+ * Part of the module that is public
+ */
+module.exports = {
+    alterSoup: alterSoup,
+    alterSoupWithSpec: alterSoupWithSpec,
+    buildAllQuerySpec: buildAllQuerySpec,
+    buildExactQuerySpec: buildExactQuerySpec,
+    buildLikeQuerySpec: buildLikeQuerySpec,
+    buildRangeQuerySpec: buildRangeQuerySpec,
+    buildSmartQuerySpec: buildSmartQuerySpec,
+    buildMatchQuerySpec: buildMatchQuerySpec,
+    clearSoup: clearSoup,
+    closeCursor: closeCursor,
+    getDatabaseSize: getDatabaseSize,
+    getSoupIndexSpecs: getSoupIndexSpecs,
+    getSoupSpec: getSoupSpec,
+    moveCursorToNextPage: moveCursorToNextPage,
+    moveCursorToPageIndex: moveCursorToPageIndex,
+    moveCursorToPreviousPage: moveCursorToPreviousPage,
+    querySoup: querySoup,
+    reIndexSoup: reIndexSoup,
+    registerSoup: registerSoup,
+    registerSoupWithSpec: registerSoupWithSpec,
+    removeFromSoup: removeFromSoup,
+    removeSoup: removeSoup,
+    retrieveSoupEntries: retrieveSoupEntries,
+    runSmartQuery: runSmartQuery,
+    soupExists: soupExists,
+    upsertSoupEntries: upsertSoupEntries,
+    upsertSoupEntriesWithExternalId: upsertSoupEntriesWithExternalId,
+    getAllStores: getAllStores,
+    getAllGlobalStores: getAllGlobalStores,
+    removeStore: removeStore,
+    removeAllGlobalStores: removeAllGlobalStores,
+    removeAllStores: removeAllStores,
+
+    // Constructors
+    SoupSpec: SoupSpec,
+    QuerySpec: QuerySpec,
+    SoupIndexSpec: SoupIndexSpec,
+    StoreCursor: StoreCursor,
+    StoreConfig: StoreConfig
 };
