@@ -123,6 +123,8 @@ export const describeLayout = (objtype, recordTypeId, callback, error) => {
  */
 export const create = (objtype, fields, callback, error) => sendRequest('/services/data', `/${apiVersion}/sobjects/${objtype}/`, callback, error, "POST", fields);
 
+export const createMultiple = (objtype, records, callback, error) => sendRequest('/services/data', `/${apiVersion}/composite/tree/${objtype}/`, callback, error, "POST", {"records" : records});
+
 /*
  * Retrieves field values for a record of the given type.
  * @param objtype object type; e.g. "Account"
