@@ -24,21 +24,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { NativeModules } from 'react-native';
-const { SmartSyncReactBridge, SFSmartSyncReactBridge } = NativeModules;
-import {exec as forceExec} from './react.force.common.js';
+'use strict';
+
+var { SmartSyncReactBridge, SFSmartSyncReactBridge } = require('react-native').NativeModules;
+var forceCommon = require('./react.force.common.js');
 
 // If param is a storeconfig return the same storeconfig
 // If param is a boolean, returns a storeconfig object  {'isGlobalStore': boolean}
 // Otherwise, returns a default storeconfig object
-const checkFirstArg = arg => {
+var checkFirstArg = function(arg) {
     // Turning arguments into array
     // If first argument is a store config
     if (typeof(arg) === "object" && arg.hasOwnProperty("isGlobalStore")) {
          return arg;
     }
 
-    let isGlobalStore =  false;
+    var isGlobalStore =  false;
     if (typeof(arg) === "boolean") {
        isGlobalStore = arg;
     }
@@ -46,36 +47,48 @@ const checkFirstArg = arg => {
 };
 
 
-const exec = (successCB, errorCB, methodName, args) => {
-    forceExec("SFSmartSyncReactBridge", "SmartSyncReactBridge", SFSmartSyncReactBridge, SmartSyncReactBridge, successCB, errorCB, methodName, args);
+var exec = function(successCB, errorCB, methodName, args) {
+    forceCommon.exec("SFSmartSyncReactBridge", "SmartSyncReactBridge", SFSmartSyncReactBridge, SmartSyncReactBridge, successCB, errorCB, methodName, args);
 };
 
-export const syncDown = (storeConfig, target, soupName, options, successCB, errorCB) => {
+var syncDown = function(storeConfig, target, soupName, options, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "syncDown", {"target": target, "soupName": soupName, "options": options,"isGlobalStore": storeConfig.isGlobalStore, "storeName": storeConfig.storeName});
 };
 
-export const reSync = (storeConfig, syncId, successCB, errorCB) => {
+var reSync = function(storeConfig, syncId, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "reSync", {"syncId": syncId, "isGlobalStore": storeConfig.isGlobalStore, "storeName": storeConfig.storeName});
 };
 
-export const cleanResyncGhosts = (storeConfig, syncId, successCB, errorCB) => {
+var cleanResyncGhosts = function(storeConfig, syncId, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "cleanResyncGhosts", {"syncId": syncId, "isGlobalStore": storeConfig.isGlobalStore, "storeName": storeConfig.storeName});
 };
 
-export const syncUp = (storeConfig, target, soupName, options, successCB, errorCB) => {
+var syncUp = function(storeConfig, target, soupName, options, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "syncUp", {"target": target, "soupName": soupName, "options": options, "isGlobalStore": storeConfig.isGlobalStore, "storeName": storeConfig.storeName});
 };
 
-export const getSyncStatus = (storeConfig, syncId, successCB, errorCB) => {
+var getSyncStatus = function(storeConfig, syncId, successCB, errorCB) {
     var storeConfig = checkFirstArg(storeConfig);
     exec(successCB, errorCB, "getSyncStatus", {"syncId": syncId, "isGlobalStore": storeConfig.isGlobalStore, "storeName": storeConfig.storeName});
 };
 
-export const MERGE_MODE = {
+var MERGE_MODE = {
     OVERWRITE: "OVERWRITE",
     LEAVE_IF_CHANGED: "LEAVE_IF_CHANGED"
+};
+
+/**
+ * Part of the module that is public.
+ */
+module.exports = {
+    MERGE_MODE: MERGE_MODE,
+    syncDown: syncDown,
+    syncUp: syncUp,
+    getSyncStatus: getSyncStatus,
+    reSync: reSync,
+    cleanResyncGhosts: cleanResyncGhosts
 };
